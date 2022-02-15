@@ -2,6 +2,15 @@ use crate::culture::Culture;
 
 const MAX_LIFESPAN: usize = 120;
 
+#[derive(Debug, PartialEq)]
+pub(crate) struct Demographics {
+    communities: Vec<Community>,
+    /// NB: Cached, be careful.
+    total_population: u64,
+    /// NB: Cached, be careful.
+    average_culture: Culture,
+}
+
 impl Demographics {
     pub(crate) fn new(communities: impl Iterator<Item = Community>) -> Self {
         let communities: Vec<Community> = communities.collect();
@@ -16,15 +25,12 @@ impl Demographics {
     }
 }
 
-pub(crate) struct Demographics {
-    communities: Vec<Community>,
-    /// NB: Cached, be careful.
-    total_population: u64,
-    /// NB: Cached, be careful.
-    average_culture: Culture,
-}
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+pub(crate) struct CommunityId(u32);
 
+#[derive(Debug, PartialEq)]
 pub(crate) struct Community {
+    id: CommunityId,
     culture: Culture,
     /// NB: Cached, be careful.
     population: u64,
@@ -33,8 +39,9 @@ pub(crate) struct Community {
 }
 
 impl Community {
-    pub(crate) fn new(culture: Culture, ages: Ages) -> Self {
+    pub(crate) fn new(id: CommunityId, culture: Culture, ages: Ages) -> Self {
         Community {
+            id,
             culture,
             population: ages.counts.iter().sum(),
             ages,
@@ -111,11 +118,11 @@ mod tests {
     #[test]
     fn reasonable_rates_dont_quickly_saturate_or_destroy_population() {
         let mut ages = Ages::new(
-            [1; MAX_LIFESPAN],
+            [100; MAX_LIFESPAN],
             [1.05; MAX_LIFESPAN],
             [0.007; MAX_LIFESPAN],
         );
-        for _ in 0..1000000 {
+        for _ in 0..100000 {
             ages.step_year();
         }
         assert_ne!(
