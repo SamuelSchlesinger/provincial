@@ -1,4 +1,4 @@
-const CULTURAL_DIMENSIONS: usize = 8;
+pub(crate) const CULTURAL_DIMENSIONS: usize = 8;
 
 use rand::{
     distributions::Standard,
@@ -33,13 +33,18 @@ impl Culture {
             .sqrt()
     }
 
-    /// Computes a number proportional to how much these cultures hate each
+    /// Computes a number proportional to how much these cultures agree with each
     /// other
-    pub(crate) fn antagonism(&self, other: &Culture) -> f64 {
+    pub(crate) fn agreement(&self, other: &Culture) -> f64 {
         self.cult
             .iter()
             .zip(other.cult.iter())
             .fold(0.0, |dist, (x, y)| dist + x * y)
+            / (CULTURAL_DIMENSIONS as f64)
+    }
+
+    pub(crate) fn antagonism(&self, other: &Culture) -> f64 {
+        -self.agreement(other)
     }
 
     /// Averages the cultures as if they were in a melting pot
@@ -84,5 +89,32 @@ impl Distribution<Culture> for Standard {
             culture.cult[i] = rng.gen_range(-1.0..1.0);
         }
         culture
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn maximum_cultural_antagonism() {
+        let maximalist = Culture {
+            cult: [1.0; CULTURAL_DIMENSIONS],
+        };
+        let minimalist = Culture {
+            cult: [-1.0; CULTURAL_DIMENSIONS],
+        };
+        assert_eq!(maximalist.antagonism(&minimalist), 1.0);
+    }
+
+    #[test]
+    fn maximum_cultural_agreement() {
+        let maximalist = Culture {
+            cult: [1.0; CULTURAL_DIMENSIONS],
+        };
+        let minimalist = Culture {
+            cult: [-1.0; CULTURAL_DIMENSIONS],
+        };
+        assert_eq!(maximalist.antagonism(&minimalist), 1.0);
     }
 }
