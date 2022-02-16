@@ -2,30 +2,7 @@ use crate::culture::Culture;
 
 const MAX_LIFESPAN: usize = 120;
 
-#[derive(Debug, PartialEq)]
-pub(crate) struct Demographics {
-    communities: Vec<Community>,
-    /// NB: Cached, be careful.
-    total_population: u64,
-    /// NB: Cached, be careful.
-    average_culture: Culture,
-}
-
-impl Demographics {
-    pub(crate) fn new(communities: impl Iterator<Item = Community>) -> Self {
-        let communities: Vec<Community> = communities.collect();
-        let average_culture = Culture::average(communities.iter().map(|x| x.culture));
-        let total_population = communities.iter().map(|x| x.population).sum();
-
-        Demographics {
-            communities,
-            total_population,
-            average_culture,
-        }
-    }
-}
-
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub(crate) struct CommunityId(u32);
 
 #[derive(Debug, PartialEq)]

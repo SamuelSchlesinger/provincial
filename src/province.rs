@@ -1,12 +1,13 @@
-use crate::demographics::Demographics;
+use std::collections::HashSet;
+
+use crate::community::CommunityId;
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub(crate) struct ProvinceId(u32);
 
 #[derive(Debug, PartialEq)]
 pub(crate) struct Province {
-    id: ProvinceId,
     name: String,
     description: String,
-    population: Demographics,
+    population: HashSet<CommunityId>,
 }
